@@ -1,0 +1,6 @@
+{
+  "name": "SonataVault - Music Curator Catalog & Analytics Hub",
+  "description": "Katalog kurasi musik digital sistematis dengan database multi-sheet (Artis, Lagu, Playlist Utama & Eksternal), analitik stream & tren berkala, sinkronisasi Google Sheets & Tasks, serta alternatif scraper data publik gratis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

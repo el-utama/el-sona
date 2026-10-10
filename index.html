@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        // Intercept Vite HMR WebSocket connection to prevent connection errors in sandbox iframe
+        var OrigWS = window.WebSocket;
+        if (OrigWS) {
+          window.WebSocket = function (url, protocols) {
+            if (
+              typeof url === 'string' &&
+              (url.includes('vite') || url.includes('@vite') || protocols === 'vite-hmr')
+            ) {
+              var target = new EventTarget();
+              var dummy = {
+                url: url,
+                readyState: 3,
+                CONNECTING: 0,
+                OPEN: 1,
+                CLOSING: 2,
+                CLOSED: 3,
+                send: function () {},
+                close: function () {},
+                addEventListener: target.addEventListener.bind(target),
+                removeEventListener: target.removeEventListener.bind(target),
+                dispatchEvent: target.dispatchEvent.bind(target),
+                onopen: null,
+                onclose: null,
+                onerror: null,
+                onmessage: null,
+              };
+              setTimeout(function () {
+                var closeEvt = new Event('close');
+                if (typeof dummy.onclose === 'function') dummy.onclose(closeEvt);
+                dummy.dispatchEvent(closeEvt);
+              }, 0);
+              return dummy;
+            }
+            return new OrigWS(url, protocols);
+          };
+          window.WebSocket.prototype = OrigWS.prototype;
+          window.WebSocket.CONNECTING = 0;
+          window.WebSocket.OPEN = 1;
+          window.WebSocket.CLOSING = 2;
+          window.WebSocket.CLOSED = 3;
+        }
+
+        // Global uncaught error suppression for Vite HMR WebSocket
+        window.addEventListener('error', function (e) {
+          var msg = String(e.message || '');
+          var file = String(e.filename || '');
+          if (
+            msg.includes('WebSocket') ||
+            msg.includes('createWebSocketModuleRunnerTransport') ||
+            file.includes('@vite/client')
+          ) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function (e) {
+          var str = String(e.reason || '');
+          var stack = String(e.reason && e.reason.stack ? e.reason.stack : '');
+          if (
+            str.includes('WebSocket') ||
+            str.includes('createWebSocketModuleRunnerTransport') ||
+            stack.includes('@vite/client')
+          ) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <title>SonataVault - Music Curator Catalog & Analytics Hub</title>
+    <meta name="description" content="Katalog kurasi musik digital sistematis dengan database multi-sheet (Artis, Lagu, Playlist Utama & Eksternal), analitik stream & tren berkala, sinkronisasi Google Sheets & Tasks, serta alternatif scraper data publik gratis." />
+    <meta property="og:title" content="SonataVault - Music Curator Catalog & Analytics Hub" />
+    <meta property="og:description" content="Katalog kurasi musik digital sistematis dengan database multi-sheet (Artis, Lagu, Playlist Utama & Eksternal), analitik stream & tren berkala, sinkronisasi Google Sheets & Tasks, serta alternatif scraper data publik gratis." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
